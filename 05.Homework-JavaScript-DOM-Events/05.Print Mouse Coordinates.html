@@ -1,0 +1,15 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Problem 5.	Print Mouse Coordinates</title>
+</head>
+<body>
+    <script>
+        function printMouseCoordinates(event) {
+            document.body.innerHTML += 'X: ' + event.pageX + '; Y: ' + event.pageY + '; Time: ' + new Date() + '</br>';
+        }
+
+        document.addEventListener('mouseover', printMouseCoordinates, false);
+    </script>
+</body>
+</html>

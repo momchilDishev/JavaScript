@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>04. Numbers Only Field</title>
+</head>
+<body>
+    <section>
+        <form action="/" method="post">
+           
+            <input type="text" name="number" value="" id="number" onkeypress="validate()"/>
+        </form>
+    </section>
+    <script>
+        var input = document.getElementById('number');
+
+        function validate() {
+            var content = input.value;
+            var regex = /\D/g;
+            if (regex.test(content)) {
+                showError();
+                input.value = content.replace(regex, '');
+            }
+        }
+
+        function changeBackgroundColor(color) {
+            input.style.backgroundColor = color;
+        }
+
+        function showError() {
+            changeBackgroundColor('#F00');
+            setTimeout(function () { changeBackgroundColor('#FFF'); }, 200);
+        }
+    </script>
+</body>
+</html>

@@ -7,17 +7,20 @@ function processRestaurantManagerCommands(commands) {
         String: typeof "",
         Object: typeof {},
         Undefined: typeof undefined,
-        Function: typeof function () { }
+        Function: typeof function () {
+        }
     };
-    
+
     Object.prototype.extend = function (parent) {
         if (!Object.create) {
             Object.prototype.create = function (proto) {
-                function F() { }                ;
+                function F() {
+                };
                 F.prototype = proto;
                 return new F();
             };
-        }        ;
+        }
+        ;
 
         this.prototype = Object.create(parent.prototype);
         this.prototype.constructor = this;
@@ -35,9 +38,19 @@ function processRestaurantManagerCommands(commands) {
             _recipes = [];
         }
 
-        var Restaurant = function () {
-            this._name;
-        }
+        var Restaurant = (function () {
+            function Restaurant(name,location){
+                this.setName(name);
+                this.setLocation(location);
+                this._recipes=[];
+            }
+            Restaurant.prototype.setName = function setName(name) {
+                this._name;
+            }
+            Restaurant.prototype.setLocation = function setLocation(location) {
+                this._location;
+            }
+        }());
 
         var Recipe = function () {
             // TODO: Not implemented
@@ -80,12 +93,16 @@ function processRestaurantManagerCommands(commands) {
                 parametersKeysAndValues = commandLine
                     .substring(paramsBeginning + 1, commandLine.length - 1)
                     .split(";")
-                    .filter(function (e) { return true });
+                    .filter(function (e) {
+                        return true
+                    });
 
                 parametersKeysAndValues.forEach(function (p) {
                     var split = p
                         .split("=")
-                        .filter(function (e) { return true; });
+                        .filter(function (e) {
+                            return true;
+                        });
                     self._params[split[0]] = split[1];
                 });
             }
@@ -281,16 +298,16 @@ function processRestaurantManagerCommands(commands) {
 // Remove all below code before submitting to the judge system!
 // ------------------------------------------------------------
 
-(function() {
+(function () {
     var arr = [];
     if (typeof (require) == 'function') {
         // We are in node.js --> read the console input and process it
         require('readline').createInterface({
             input: process.stdin,
             output: process.stdout
-        }).on('line', function(line) {
+        }).on('line', function (line) {
             arr.push(line);
-        }).on('close', function() {
+        }).on('close', function () {
             console.log(processRestaurantManagerCommands(arr));
         });
     }

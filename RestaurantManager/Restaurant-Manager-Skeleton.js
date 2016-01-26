@@ -31,6 +31,11 @@ function processRestaurantManagerCommands(commands) {
     }
 
     var RestaurantEngine = (function () {
+        var globalConstants = {
+            UNIT_GRAMS: 'g',
+            UNIT_MILILITERS: 'ml'
+        };
+        
         var _restaurants, _recipes;
 
         function initialize() {
@@ -39,42 +44,104 @@ function processRestaurantManagerCommands(commands) {
         }
 
         var Restaurant = (function () {
-            function Restaurant(name,location){
+            function Restaurant(name, location) {
                 this.setName(name);
                 this.setLocation(location);
-                this._recipes=[];
+                this._recipes = [];
+            }
+
+            Restaurant.prototype.setName = function setName(name) {
+                this._name = name;
             }
             Restaurant.prototype.setName = function setName(name) {
-                this._name;
+                return this._name;
             }
             Restaurant.prototype.setLocation = function setLocation(location) {
-                this._location;
+                this._location = location;
             }
+            Restaurant.prototype.getLocation = function getLocation() {
+                return this._location;
+            }
+            Restaurant.prototype.addRecipe = function addRecipe(recipe) {
+                if (!recipe instanceof Recipe) {
+                    throw new TypeError("Parameter should be instance of Recipe");
+                }
+                this._recipes.push(recipe);
+            }
+            Restaurant.prototype.removeRecipe = function removeRecipe(recipe) {
+                if (!recipe instanceof Recipe) {
+                    throw new TypeError("Parameter should be instance of Recipe");
+                }
+                var index = this._recipes.indexOf(recipe);
+                this._recipes.splice(index, 1);
+            }
+            Restaurant.prototype.printRestaurantMenu = function printRestaurantMenu(){
+
+            }
+            return Restaurant;
         }());
 
-        var Recipe = function () {
-            // TODO: Not implemented
+        var Recipe = (function () {
+            function Recipe(name, price, calories, quantity, time, unit) {
+                if (this.constructor === Recipe) {
+                    throw new Error("Cannot instantiate abstract class Recipe");
+                }
+                this.setName(name);
+                this.setPrice(price);
+                this.setCalories(calories);
+                this.setQuantity(quantity);
+                this.setTime(time);
+                this._unit = unit;
         }
+            Recipe.prototype.setName=function setName(name){
+                if(name.isString){
+                    this._name = name;
+                }else{
+                    throw new Error("Recipe must have a name!");
+                }
 
-        var Drink = function () {
-            // TODO: Not implemented
-        }
+            }
+            return Recipe;
+        }());
 
-        var Meal = function () {
-            // TODO: Not implemented
-        }
+        var Meal = (function () {
+            function Meal(name, price, calories, quantity, time, unit, isVegan){
+                Recipe.call(this, name, price,calories,quantity,time,unit)
+                this._isVegan = isVegan;
+            }
+            Meal.extend(Recipe);
+            Meal.prototype.toggleVegan = function (){
+                if(this._isVegan){
+                    this._isVegan =false;
+                }else{
+                    this._isVegan = true;
+                }
+            }
+            return Meal;
+        }());
+
+        var Drink = (function () {
+            Drink.extend(Recipe);
+        }())
+
+
 
         var Dessert = function () {
-            // TODO: Not implemented
+            Dessert.extend(Recipe);
         }
 
         var MainCourse = function () {
-            // TODO: Not implemented
+            MainCourse.extend(Meal);
         }
 
-        var Salad = function () {
-            // TODO: Not implemented
-        }
+        var Salad = (function () {
+            function Salad(name, price, calories, quantity, time, unit, containsPasta){
+                Meal.call(this,name, price, calories, quantity, time, globalConstants.);
+                this._containsPasta = hasPasta;
+            }
+
+            return Salad;
+        }());
 
         var Command = (function () {
 

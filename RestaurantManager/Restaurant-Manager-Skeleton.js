@@ -35,7 +35,7 @@ function processRestaurantManagerCommands(commands) {
             UNIT_GRAMS: 'g',
             UNIT_MILILITERS: 'ml'
         };
-        
+
         var _restaurants, _recipes;
 
         function initialize() {
@@ -52,6 +52,9 @@ function processRestaurantManagerCommands(commands) {
 
             Restaurant.prototype.setName = function setName(name) {
                 this._name = name;
+            }
+            Restaurant.prototype.getName = function getName() {
+                return this._name;
             }
             Restaurant.prototype.setName = function setName(name) {
                 return this._name;
@@ -75,7 +78,7 @@ function processRestaurantManagerCommands(commands) {
                 var index = this._recipes.indexOf(recipe);
                 this._recipes.splice(index, 1);
             }
-            Restaurant.prototype.printRestaurantMenu = function printRestaurantMenu(){
+            Restaurant.prototype.printRestaurantMenu = function printRestaurantMenu() {
 
             }
             return Restaurant;
@@ -84,7 +87,7 @@ function processRestaurantManagerCommands(commands) {
         var Recipe = (function () {
             function Recipe(name, price, calories, quantity, time, unit) {
                 if (this.constructor === Recipe) {
-                    throw new Error("Cannot instantiate abstract class Recipe");
+                    throw new Error("Cannot instantiate abstract class Recipe.");
                 }
                 this.setName(name);
                 this.setPrice(price);
@@ -92,11 +95,12 @@ function processRestaurantManagerCommands(commands) {
                 this.setQuantity(quantity);
                 this.setTime(time);
                 this._unit = unit;
-        }
-            Recipe.prototype.setName=function setName(name){
-                if(name.isString){
+            }
+
+            Recipe.prototype.setName = function setName(name) {
+                if (name.isString) {
                     this._name = name;
-                }else{
+                } else {
                     throw new Error("Recipe must have a name!");
                 }
 
@@ -105,39 +109,58 @@ function processRestaurantManagerCommands(commands) {
         }());
 
         var Meal = (function () {
-            function Meal(name, price, calories, quantity, time, unit, isVegan){
-                Recipe.call(this, name, price,calories,quantity,time,unit)
+            function Meal(name, price, calories, quantity, time, unit, isVegan) {
+                if (this.constructor === Meal) {
+                    throw new Error("Cannot instantiate abstract class Meal.");
+                }
+                Recipe.call(this, name, price, calories, quantity, time, globalConstants.UNIT_GRAMS)
                 this._isVegan = isVegan;
             }
+
             Meal.extend(Recipe);
-            Meal.prototype.toggleVegan = function (){
-                if(this._isVegan){
-                    this._isVegan =false;
-                }else{
-                    this._isVegan = true;
-                }
+            Meal.prototype.toggleVegan = function () {
+                this._isVegan = !this._isVegan;
             }
             return Meal;
         }());
 
         var Drink = (function () {
+            function Drink(name, price, calories, quantity, time, unit, isCarbonated) {
+                Recipe.call(this, name, price, calories, quantity, time, globalConstants.UNIT_MILILITERS);
+                this._isCarbonated = isCarbonated;
+            }
+
             Drink.extend(Recipe);
-        }())
+            return Drink;
+        }());
 
 
-
-        var Dessert = function () {
+        var Dessert = (function () {
+            function Dessert(name, price, calories, quantity, time, isVegan) {
+                Meal.call(this, name, price, calories, quantity, time, isVegan)
+                this._withSugar = true;
+            }
+            Dessert.prototype.toggleSugar = function(){
+                this._withSugar = !this._withSugar;
+            }
             Dessert.extend(Recipe);
-        }
+            return Dessert;
+        }());
 
-        var MainCourse = function () {
+        var MainCourse = (function () {
+            function MainCourse(name, price, calories, quantity, time, type) {
+                Meal.call(this, name, price, calories, quantity, time);
+                this._type = type;
+            }
+
             MainCourse.extend(Meal);
-        }
+            return MainCourse;
+        }());
 
         var Salad = (function () {
-            function Salad(name, price, calories, quantity, time, unit, containsPasta){
-                Meal.call(this,name, price, calories, quantity, time, globalConstants.);
-                this._containsPasta = hasPasta;
+            function Salad(name, price, calories, quantity, time, unit, containsPasta) {
+                Meal.call(this, name, price, calories, quantity, time, globalConstants.UNIT_GRAMS);
+                this._containsPasta = containsPasta;
             }
 
             return Salad;

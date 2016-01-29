@@ -30,6 +30,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Estates-Skeleton.js" />
     <Compile Include="Estates.js" />
   </ItemGroup>
   <ItemGroup>

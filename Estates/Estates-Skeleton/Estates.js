@@ -2,53 +2,135 @@
 
     'use strict';
 
+    var Types = {
+        Boolean: typeof true,
+        Number: typeof 0,
+        String: typeof "",
+        Object: typeof {},
+        Undefined: typeof undefined,
+        Function: typeof function () {
+        }
+    };
 
-    var Estate = function() {
+    Object.prototype.extend = function (parent) {
+        if (!Object.create) {
+            Object.prototype.create = function (proto) {
+                function F() {
+                }
+
+                F.prototype = proto;
+                return newF;
+            }
+        }
+
+        this.prototype = Object.create(parent.prototype);
+        this.prototype.constructor = this;
+    };
+    Object.prototype.isString = function () {
+        return typeof(this) === Types.String;
+    }
+
+    var Estate = (function () {
+        if (this.constructor === Estate) {
+            throw new Error('Estate cannot be instantiated.');
+        }
+        function Estate(name, area, location, isFurnished) {
+            this._isFurnished = isFurnished;
+            this.setName(name);
+            this.setArea(area);
+            this.setLocation(location);
+        }
+        Estate.prototype.getName = function(){
+            return this._name;
+        }
+        Estate.prototype.setName = function(name){
+            if(!name || !name.isString()) {
+                this._name = name;
+            }
+        }
+        Estate.prototype.getArea = function(){
+            return this._area;
+        }
+        Estate.prototype.setArea=function(area){
+            if(area<1|area>10000){
+                throw new Error('Area should be an integer in range [1…10000]');
+            }
+            this._area= area;
+        }
+        Estate.prototype.getLocation = function(){
+            return this._location;
+        }
+        Estate.prototype.setLocation = function(location){
+            if(!location || !location.isString()) {
+                this._location = location;
+            }
+        }
+
+
+        return Estate;
+    }());
+
+
+    var BuildingEstate = (function () {
+        if (this.constructor === Estate) {
+            throw new Error('Building estate cannot be instantiated.');
+        }
+        function BuildingEstate(name, area, location, isFurnished, numberOfRooms, hasElevator) {
+            Estate.call(this, name, area, location, isFurnished)
+            this.setNumberOfRooms(numberOfRooms);
+            this._hasElevator = hasElevator;
+        }
+        BuildingEstate.extend(Estate);
+
+        BuildingEstate.prototype.setNumberOfRooms = function(numberOfRooms){
+            if(numberOfRooms<=0|numberOfRooms>100){
+                throw new Error('Number of rooms should be integer between 0 and 100.')
+            }
+            this._numberOfRooms = numberOfRooms;
+        }
+        BuildingEstate.prototype.getNumberOfRooms = function(){
+            return this._numberOfRooms;
+        }
+        return BuildingEstate;
+    }());
+
+
+    var Apartment = function () {
         // TODO: define the missing class 
     };
 
 
-    var BuildingEstate = function() {
+    var Office = function () {
         // TODO: define the missing class 
     };
 
 
-    var Apartment = function() {
+    var House = function () {
         // TODO: define the missing class 
     };
 
 
-    var Office = function() {
+    var Garage = function () {
         // TODO: define the missing class 
     };
 
 
-    var House = function() {
+    var Offer = function () {
         // TODO: define the missing class 
     };
 
 
-    var Garage = function() {
+    var RentOffer = function () {
         // TODO: define the missing class 
     };
 
 
-    var Offer = function() {
+    var SaleOffer = function () {
         // TODO: define the missing class 
     };
 
 
-    var RentOffer = function() {
-        // TODO: define the missing class 
-    };
-
-
-    var SaleOffer = function() {
-        // TODO: define the missing class 
-    };
-
-
-    var EstatesEngine = (function() {
+    var EstatesEngine = (function () {
         var _estates;
         var _uniqueEstateNames;
         var _offers;
@@ -64,64 +146,64 @@
             var cmdName = cmdParts[0];
             var cmdArgs = cmdParts.splice(1);
             switch (cmdName) {
-            case 'create':
-                return executeCreateCommand(cmdArgs);
-            case 'status':
-                return executeStatusCommand();
-            case 'find-sales-by-location':
-                return executeFindSalesByLocationCommand(cmdArgs[0]);
-            default:
-                throw new Error('Unknown command: ' + cmdName);
+                case 'create':
+                    return executeCreateCommand(cmdArgs);
+                case 'status':
+                    return executeStatusCommand();
+                case 'find-sales-by-location':
+                    return executeFindSalesByLocationCommand(cmdArgs[0]);
+                default:
+                    throw new Error('Unknown command: ' + cmdName);
             }
         }
 
         function executeCreateCommand(cmdArgs) {
             var objType = cmdArgs[0];
             switch (objType) {
-            case 'Apartment':
-                var apartment = new Apartment(cmdArgs[1], Number(cmdArgs[2]), cmdArgs[3],
-                    parseBoolean(cmdArgs[4]), Number(cmdArgs[5]), parseBoolean(cmdArgs[6]));
-                addEstate(apartment);
-                break;
-            case 'Office':
-                var office = new Office(cmdArgs[1], Number(cmdArgs[2]), cmdArgs[3],
-                    parseBoolean(cmdArgs[4]), Number(cmdArgs[5]), parseBoolean(cmdArgs[6]));
-                addEstate(office);
-                break;
-            case 'House':
-                var house = new House(cmdArgs[1], Number(cmdArgs[2]), cmdArgs[3],
-                    parseBoolean(cmdArgs[4]), Number(cmdArgs[5]));
-                addEstate(house);
-                break;
-            case 'Garage':
-                var garage = new Garage(cmdArgs[1], Number(cmdArgs[2]), cmdArgs[3],
-                    parseBoolean(cmdArgs[4]), Number(cmdArgs[5]), Number(cmdArgs[6]));
-                addEstate(garage);
-                break;
-            case 'RentOffer':
-                var estate = findEstateByName(cmdArgs[1]);
-                var rentOffer = new RentOffer(estate, Number(cmdArgs[2]));
-                addOffer(rentOffer);
-                break;
-            case 'SaleOffer':
-                estate = findEstateByName(cmdArgs[1]);
-                var saleOffer = new SaleOffer(estate, Number(cmdArgs[2]));
-                addOffer(saleOffer);
-                break;
-            default:
-                throw new Error('Unknown object to create: ' + objType);
+                case 'Apartment':
+                    var apartment = new Apartment(cmdArgs[1], Number(cmdArgs[2]), cmdArgs[3],
+                        parseBoolean(cmdArgs[4]), Number(cmdArgs[5]), parseBoolean(cmdArgs[6]));
+                    addEstate(apartment);
+                    break;
+                case 'Office':
+                    var office = new Office(cmdArgs[1], Number(cmdArgs[2]), cmdArgs[3],
+                        parseBoolean(cmdArgs[4]), Number(cmdArgs[5]), parseBoolean(cmdArgs[6]));
+                    addEstate(office);
+                    break;
+                case 'House':
+                    var house = new House(cmdArgs[1], Number(cmdArgs[2]), cmdArgs[3],
+                        parseBoolean(cmdArgs[4]), Number(cmdArgs[5]));
+                    addEstate(house);
+                    break;
+                case 'Garage':
+                    var garage = new Garage(cmdArgs[1], Number(cmdArgs[2]), cmdArgs[3],
+                        parseBoolean(cmdArgs[4]), Number(cmdArgs[5]), Number(cmdArgs[6]));
+                    addEstate(garage);
+                    break;
+                case 'RentOffer':
+                    var estate = findEstateByName(cmdArgs[1]);
+                    var rentOffer = new RentOffer(estate, Number(cmdArgs[2]));
+                    addOffer(rentOffer);
+                    break;
+                case 'SaleOffer':
+                    estate = findEstateByName(cmdArgs[1]);
+                    var saleOffer = new SaleOffer(estate, Number(cmdArgs[2]));
+                    addOffer(saleOffer);
+                    break;
+                default:
+                    throw new Error('Unknown object to create: ' + objType);
             }
             return objType + ' created.';
         }
 
         function parseBoolean(value) {
             switch (value) {
-            case "true":
-                return true;
-            case "false":
-                return false;
-            default:
-                throw new Error("Invalid boolean value: " + value);
+                case "true":
+                    return true;
+                case "false":
+                    return false;
+                default:
+                    throw new Error("Invalid boolean value: " + value);
             }
         }
 
@@ -173,11 +255,11 @@
             if (!location) {
                 throw new Error("Location cannot be empty.");
             }
-            var selectedOffers = _offers.filter(function(offer) {
+            var selectedOffers = _offers.filter(function (offer) {
                 return offer.getEstate().getLocation() === location &&
                     offer instanceof SaleOffer;
             });
-            selectedOffers.sort(function(a, b) {
+            selectedOffers.sort(function (a, b) {
                 return a.getEstate().getName().localeCompare(b.getEstate().getName());
             });
             return formatQueryResults(selectedOffers);
@@ -209,7 +291,7 @@
     // Process the input commands and return the results
     var results = '';
     EstatesEngine.initialize();
-    commands.forEach(function(cmd) {
+    commands.forEach(function (cmd) {
         if (cmd != '') {
             try {
                 var cmdResult = EstatesEngine.executeCommand(cmd);
@@ -229,16 +311,16 @@
 // Remove all below code before submitting to the judge system!
 // ------------------------------------------------------------
 
-(function() {
+(function () {
     var arr = [];
     if (typeof (require) == 'function') {
         // We are in node.js --> read the console input and process it
         require('readline').createInterface({
             input: process.stdin,
             output: process.stdout
-        }).on('line', function(line) {
+        }).on('line', function (line) {
             arr.push(line);
-        }).on('close', function() {
+        }).on('close', function () {
             console.log(processEstatesAgencyCommands(arr));
         });
     }

@@ -21,13 +21,14 @@ function processRestaurantManagerCommands(commands) {
                 return new F;
             }
         }
+        ;
 
         this.prototype = Object.create(parent.prototype);
         this.prototype.constructor = this;
     }
 
     Object.prototype.isString = function () {
-        return typeof (this) === Types.String;
+        return typeof(this) === Types.String;
     }
 
     var RestaurantEngine = (function () {
@@ -50,27 +51,29 @@ function processRestaurantManagerCommands(commands) {
                 this._recipes = [];
             }
 
-            Restaurant.prototype.setName = function setName(name) {
-                if (!name || !name.isString()) {
-                    throw new Error('The name is required.')
-                }
-                this._name = name;
-            }
             Restaurant.prototype.getName = function getName() {
                 return this._name;
             }
-            Restaurant.prototype.setLocation = function setLocation(location) {
-                if (!location || !location.isString()) {
-                    throw new Error('The location is required.')
+            Restaurant.prototype.setName = function setName(name) {
+                var isString = name.isString();
+                if (!name || !isString) {
+                    throw new Error('Name cannot be null or empty.')
                 }
-                this._location = location;
+                this._name = name;
             }
             Restaurant.prototype.getLocation = function getLocation() {
                 return this._location;
             }
+            Restaurant.prototype.setLocation = function setLocation(location) {
+                if (!location || !location.isString()) {
+                    throw new Error('Location cannot be null or empty.')
+                }
+                this._location = location;
+            }
+
             Restaurant.prototype.addRecipe = function (recipe) {
                 if (!(recipe instanceof Recipe)) {
-                    throw new TypeError('Parameter should be instance of Recipe');
+                    throw new TypeError('Parameter should be instance of Recipe.');
                 }
                 this._recipes.push(recipe);
             }
@@ -93,30 +96,31 @@ function processRestaurantManagerCommands(commands) {
                 desserts = getRecipesByType.call(this, Dessert);
                 var result = '';
                 if (drinks.length) {
-                    result += '~~~~~ DRINKS ~~~~~\n';
+                    result += '~~~~~ DRINKS ~~~~~' + '\n';
                     drinks.forEach(function (drink) {
                         result += drink.toString();
                     });
                 }
                 if (salads.length) {
-                    result += '~~~~~ SALADS ~~~~~\n';
+                    result += '~~~~~ SALADS ~~~~~' + '\n';
                     salads.forEach(function (salad) {
                         result += salad.toString();
                     });
                 }
-                if (desserts.length) {
-                    result += '~~~~~ DESSERTS ~~~~~\n';
-                    desserts.forEach(function (dessert) {
-                        result += dessert.toString();
-                    });
-                }
                 if (mainCourses.length) {
-                    result += '~~~~~ MAIN COURSES ~~~~~\n';
+                    result += '~~~~~ MAIN COURSES ~~~~~' + '\n';
                     mainCourses.forEach(function (mainCourse) {
                         result += mainCourse.toString();
                     });
                 }
+                if (desserts.length) {
+                    result += '~~~~~ DESSERTS ~~~~~' + '\n';
+                    desserts.forEach(function (dessert) {
+                        result += dessert.toString();
+                    });
+                }
 
+                return result;
             }
             var getRecipesByType = function (type) {
                 return this._recipes.filter(function (recipe) {
@@ -139,7 +143,7 @@ function processRestaurantManagerCommands(commands) {
         var Recipe = (function () {
             function Recipe(name, price, calories, quantity, time, unit) {
                 if (this.constructor === Recipe) {
-                    throw new Error('Cannot instantiate abstract class Recipe.');
+                    throw new Error('Recipe can not be instantiated!');
                 }
                 this.setName(name);
                 this.setPrice(price);
@@ -156,6 +160,10 @@ function processRestaurantManagerCommands(commands) {
                 this._name = name;
 
             }
+            Recipe.prototype.getUnit = function () {
+                return this._unit;
+            }
+
             Recipe.prototype.getName = function () {
                 return this._name;
             }
@@ -169,6 +177,9 @@ function processRestaurantManagerCommands(commands) {
             Recipe.prototype.getPrice = function () {
                 return this._price;
             }
+            Recipe.prototype.getCalories = function () {
+                return this._calories;
+            }
             Recipe.prototype.setCalories = function (calories) {
                 if (calories <= 0) {
                     throw new Error('The calories must positive.');
@@ -176,20 +187,18 @@ function processRestaurantManagerCommands(commands) {
                 this._calories = calories;
 
             }
-            Recipe.prototype.getCalories = function () {
-                return this._calories;
-            }
+
             Recipe.prototype.getQuantity = function () {
                 return this._quantity;
             }
             Recipe.prototype.setQuantity = function (quantity) {
-                if (quantity < 0) {
+                if (quantity <= 0) {
                     throw new Error("The quantity must be positive.");
                 }
                 this._quantity = quantity;
             }
             Recipe.prototype.getTime = function () {
-                return this._price;
+                return this._time;
             }
 
             Recipe.prototype.setTime = function (time) {
@@ -198,23 +207,21 @@ function processRestaurantManagerCommands(commands) {
                 }
                 return this._time = time;
             }
-            Recipe.prototype.getUnit = function () {
-                return this._unit;
-            }
+
             Recipe.prototype.toString = function () {
                 var result = '==  ' + this.getName() + ' == $' + this.getPrice().toFixed(2) + '\n' +
                     'Per serving: ' + this.getQuantity() + ' ' + this.getUnit() + ', ' + this.getCalories() + ' kcal' + '\n' +
-                    'Ready in ' + this.getTime() + ' minutes\n';
+                    'Ready in ' + this.getTime() + ' minutes' + '\n';
                 return result;
             }
 
             return Recipe;
-        }());
+        }())
 
         var Meal = (function () {
             function Meal(name, price, calories, quantity, time, isVegan) {
                 if (this.constructor === Meal) {
-                    throw new Error('Cannot instantiate abstract class Meal.');
+                    throw new Error('Meal cannot be instantiated!');
                 }
                 Recipe.call(this, name, price, calories, quantity, time, globalConstants.UNIT_GRAMS);
                 this._isVegan = isVegan;
@@ -230,10 +237,10 @@ function processRestaurantManagerCommands(commands) {
                 return result;
             }
             return Meal;
-        }());
+        }())
 
         var Drink = (function () {
-            function Drink(name, price, calories, quantity, time, unit, isCarbonated) {
+            function Drink(name, price, calories, quantity, time, isCarbonated) {
                 Recipe.call(this, name, price, calories, quantity, time, globalConstants.UNIT_MILLILITERS);
                 this._isCarbonated = isCarbonated;
             }
@@ -283,13 +290,10 @@ function processRestaurantManagerCommands(commands) {
             }
 
             MainCourse.extend(Meal);
-            MainCourse.prototype.setType = function (type) {
-
-            }
 
             MainCourse.prototype.toString = function () {
                 var result = Meal.prototype.toString.call(this);
-                result += 'Type ' + this._type + '\n';
+                result += 'Type: ' + this._type + '\n';
                 return result;
             }
 
@@ -298,7 +302,7 @@ function processRestaurantManagerCommands(commands) {
 
         var Dessert = (function () {
             function Dessert(name, price, calories, quantity, time, isVegan) {
-                Meal.call(this, name, price, calories, quantity, time, isVegan)
+                Meal.call(this, name, price, calories, quantity, time, isVegan);
                 this._withSugar = true;
             }
 
@@ -448,6 +452,14 @@ function processRestaurantManagerCommands(commands) {
             restaurant.removeRecipe(recipe);
             return "Recipe " + recipeName + " successfully removed from restaurant " + restaurantName + "\n";
         }
+        function printAllRecipes(){
+            var result = '===== ALL RECIPES ====='+ '\n';
+            for( var recipe in _recipes){
+                if(_recipes[recipe] instanceof Recipe){
+                    result +=_recipes[recipe].toString();
+                };
+            }
+        }
 
         function executeCommand(commandLine) {
             var cmd, params, result;
@@ -488,6 +500,9 @@ function processRestaurantManagerCommands(commands) {
                     break;
                 case "PrintRestaurantMenu":
                     result = printRestaurantMenu(params["name"]);
+                    break;
+                case "PrintAllRecipes":
+                    result = printAllRecipes(params["name"]);
                     break;
                 default:
                     throw new Error('Invalid command name: ' + cmdName);

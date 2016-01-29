@@ -65,8 +65,6 @@
                 this._location = location;
             }
         }
-
-
         return Estate;
     }());
 
@@ -78,31 +76,43 @@
         function BuildingEstate(name, area, location, isFurnished, numberOfRooms, hasElevator) {
             Estate.call(this, name, area, location, isFurnished)
             this.setNumberOfRooms(numberOfRooms);
-            this._hasElevator = hasElevator;
+            this.hasElevator(hasElevator);
         }
         BuildingEstate.extend(Estate);
 
         BuildingEstate.prototype.setNumberOfRooms = function(numberOfRooms){
             if(numberOfRooms<=0|numberOfRooms>100){
-                throw new Error('Number of rooms should be integer between 0 and 100.')
+                throw new Error('Number of rooms should be integer between 1 and 100.')
             }
             this._numberOfRooms = numberOfRooms;
         }
         BuildingEstate.prototype.getNumberOfRooms = function(){
             return this._numberOfRooms;
         }
+        BuildingEstate.prototype.hasElevator = function(hasElevator){
+            if(!(typeof(hasElevator)==Types.Boolean)){
+                throw new Error('Parameter should be boolean.')
+            }
+            this._hasElevator = hasElevator;
+        }
         return BuildingEstate;
     }());
 
 
-    var Apartment = function () {
-        // TODO: define the missing class 
-    };
+    var Apartment = (function () {
+        function Apartment(name, area, location, isFurnished, numberOfRooms, hasElevator) {
+            BuildingEstate.call(name, area, location, isFurnished, numberOfRooms, hasElevator);
+        }
+        return Apartment;
+    }());
 
 
-    var Office = function () {
-        // TODO: define the missing class 
-    };
+    var Office = (function () {
+        function Office(name, area, location, isFurnished, numberOfRooms, hasElevator) {
+            BuildingEstate.call(name, area, location, isFurnished, numberOfRooms, hasElevator);
+        }
+        return Office;
+    }());
 
 
     var House = function () {

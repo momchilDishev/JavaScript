@@ -92,7 +92,7 @@
     
     
     var BuildingEstate = (function () {
-        var MIN_ROOMs = 1;
+        var MIN_ROOMS = 1;
         var MAX_ROOMS = 100;
         function BuildingEstate(name, area, location, isFurnished, numberOfRooms, hasElevator) {
             if (this.constructor === BuildingEstate) {
@@ -174,7 +174,7 @@
         var MIN = 1;
         var MAX = 500;
         function Garage(name, area, location, isFurnished, width, height) {
-            Estatecall(this, name, area, location, isFurnished);
+            Estate.call(this, name, area, location, isFurnished);
             this.setHeight(height);
             this.setWidth(width);
         }
@@ -189,9 +189,18 @@
             }
             this._height = height;
         }
+        Garage.prototype.getWidth = function () {
+            return this._width;
+        }
+        Garage.prototype.setWidth = function (width) {
+            if (width < MIN || width > MAX) {
+                throw new Error('Height should be between 1 and 500.');
+            }
+            this._width = width;
+        }
         Garage.prototype.toString = function () {
             var result = Estate.prototype.toString().call(this);
-            result += ', Width: ' + get.Width() + ', Height: ' + this.getHeight();
+            result += ', Width: ' + this.getWidth() + ', Height: ' + this.getHeight();
             return result;
         }
         return Garage;

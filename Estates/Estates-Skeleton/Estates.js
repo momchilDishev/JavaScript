@@ -1,7 +1,7 @@
 ﻿function processEstatesAgencyCommands(commands) {
-
+    
     'use strict';
-
+    
     var Types = {
         Boolean: typeof true,
         Number: typeof 0,
@@ -11,146 +11,220 @@
         Function: typeof function () {
         }
     };
-
+    
     Object.prototype.extend = function (parent) {
         if (!Object.create) {
             Object.prototype.create = function (proto) {
                 function F() {
                 }
-
+                
                 F.prototype = proto;
                 return newF;
             }
         }
-
+        
         this.prototype = Object.create(parent.prototype);
         this.prototype.constructor = this;
     };
     Object.prototype.isString = function () {
-        return typeof(this) === Types.String;
+        return typeof (this) === Types.String;
     }
-
+    Object.prototype.isBoolean = function () {
+        return typeof (this) === Types.Boolean;
+    }
+    
     var Estate = (function () {
-        if (this.constructor === Estate) {
-            throw new Error('Estate cannot be instantiated.');
-        }
+        var MIN_AREA = 1;
+        var MAX_AREA = 10000;
         function Estate(name, area, location, isFurnished) {
-            this._isFurnished = isFurnished;
+            if (this.constructor === Estate) {
+                throw new Error('Estate cannot be instantiated.');
+            }
             this.setName(name);
             this.setArea(area);
             this.setLocation(location);
+            this.isFurnished(isFurnished);
         }
-        Estate.prototype.getName = function(){
+        
+        Estate.prototype.getName = function () {
             return this._name;
         }
-        Estate.prototype.setName = function(name){
-            if(!name || !name.isString()) {
-                this._name = name;
+        Estate.prototype.setName = function (name) {
+            if (!name || !name.isString()) {
+                throw new Error('Name cannot be null or empty')
             }
+            this._name = name;
         }
-        Estate.prototype.getArea = function(){
+        Estate.prototype.getArea = function () {
             return this._area;
         }
-        Estate.prototype.setArea=function(area){
-            if(area<1|area>10000){
+        Estate.prototype.setArea = function (area) {
+            if (area < MIN_AREA || area > MAX_AREA) {
                 throw new Error('Area should be an integer in range [1…10000]');
             }
-            this._area= area;
+            this._area = area;
         }
-        Estate.prototype.getLocation = function(){
+        Estate.prototype.getLocation = function () {
             return this._location;
         }
-        Estate.prototype.setLocation = function(location){
-            if(!location || !location.isString()) {
-                this._location = location;
+        Estate.prototype.setLocation = function (location) {
+            if (!location || !location.isString()) {
+                throw new Error('Locaiton cannot be null or empty')
             }
+            this._location = location;
+        }
+        Estate.prototype.isFurnished = function (isFurnished) {
+            if (!isFurnished.isBoolean()) {
+                throw new Error('Parameter should be boolean.')
+            }
+            this._isFurnished = isFurnished;
+        }
+        Estate.prototype.toString = function () {
+            var furnished = this._isFurnished ? 'Yes' : 'No';
+            var result = this.constructor.name + ': Name = ' + this.getName() +
+                ', Area = ' + this.getArea() +
+                ', Location = ' + this.getLocation() +
+                ', Furnitured = ' + furnished;
+            return result;
         }
         return Estate;
     }());
-
-
+    
+    
     var BuildingEstate = (function () {
-        if (this.constructor === Estate) {
-            throw new Error('Building estate cannot be instantiated.');
-        }
+        var MIN_ROOMs = 1;
+        var MAX_ROOMS = 100;
         function BuildingEstate(name, area, location, isFurnished, numberOfRooms, hasElevator) {
-            Estate.call(this, name, area, location, isFurnished)
+            if (this.constructor === BuildingEstate) {
+                throw new Error('BuildingEstate cannot be instantiated.');
+            }
+            Estate.call(this, name, area, location, isFurnished);
             this.setNumberOfRooms(numberOfRooms);
-            this.hasElevator(hasElevator);
+            this.setHasElevator(hasElevator);
         }
         BuildingEstate.extend(Estate);
-
-        BuildingEstate.prototype.setNumberOfRooms = function(numberOfRooms){
-            if(numberOfRooms<=0|numberOfRooms>100){
+        BuildingEstate.prototype.setNumberOfRooms = function (numberOfRooms) {
+            if (numberOfRooms < MIN_ROOMS || numberOfRooms > MAX_ROOMS) {
                 throw new Error('Number of rooms should be integer between 1 and 100.')
             }
             this._numberOfRooms = numberOfRooms;
         }
-        BuildingEstate.prototype.getNumberOfRooms = function(){
+        BuildingEstate.prototype.getNumberOfRooms = function () {
             return this._numberOfRooms;
         }
-        BuildingEstate.prototype.hasElevator = function(hasElevator){
-            if(!(typeof(hasElevator)==Types.Boolean)){
+        BuildingEstate.prototype.setHasElevator = function (hasElevator) {
+            if (!hasElevator.isBoolean()) {
                 throw new Error('Parameter should be boolean.')
             }
             this._hasElevator = hasElevator;
         }
+        BuildingEstate.prototype.getHasElevator = function () {
+            return this._hasElevator;
+        }
         return BuildingEstate;
     }());
-
-
+    
+    
     var Apartment = (function () {
         function Apartment(name, area, location, isFurnished, numberOfRooms, hasElevator) {
-            BuildingEstate.call(name, area, location, isFurnished, numberOfRooms, hasElevator);
+            BuildingEstate.call(this, name, area, location, isFurnished, numberOfRooms, hasElevator);
         }
+        Apartment.extend(BuildingEstate);
         return Apartment;
     }());
-
-
+    
+    
     var Office = (function () {
         function Office(name, area, location, isFurnished, numberOfRooms, hasElevator) {
-            BuildingEstate.call(name, area, location, isFurnished, numberOfRooms, hasElevator);
+            BuildingEstate.call(this, name, area, location, isFurnished, numberOfRooms, hasElevator);
         }
+        Office.extend(BuildingEstate);
         return Office;
     }());
+    
+    
+    var House = (function () {
+        var MIN_FLOORS = 0;
+        var MAX_FLOORS = 10;
+        function House(name, area, location, isFurnished, floors) {
+            Estate.call(this, name, area, location, isFurnished);
+            this.setFloors(floors);
+        }
+        
+        House.extend(Estate);
+        House.prototype.getFloors = function () {
+            return this._floors;
+        }
+        House.prototype.setFloors = function (floors) {
+            if (floors <= MIN_FLOORS || floors > MAX_FLOORS) {
+                throw new Error('Number of rooms should be integer between 1 and 10.')
+            }
+            this._floors = floors;
+        }
+        House.prototype.toString = function () {
+            var result = Estate.prototype.toString().call(this);
+            result += ', Floors = ' + this.getFloors();
+            return result;
+        }
+        return House;
+    }());
+    
+    
+    var Garage = (function () {
+        var MIN = 1;
+        var MAX = 500;
+        function Garage(name, area, location, isFurnished, width, height) {
+            Estatecall(this, name, area, location, isFurnished);
+            this.setHeight(height);
+            this.setWidth(width);
+        }
+        Garage.extend(Estate);
+        
+        Garage.prototype.getHeight = function () {
+            return this._height;
+        }
+        Garage.prototype.setHeight = function (height) {
+            if (height < MIN || height > MAX) {
+                throw new Error('Height should be between 1 and 500.');
+            }
+            this._height = height;
+        }
+        Garage.prototype.toString = function () {
+            var result = Estate.prototype.toString().call(this);
+            result += ', Width: ' + get.Width() + ', Height: ' + this.getHeight();
+            return result;
+        }
+        return Garage;
 
-
-    var House = function () {
-        // TODO: define the missing class 
-    };
-
-
-    var Garage = function () {
-        // TODO: define the missing class 
-    };
-
-
+    }());
+    
+    
     var Offer = function () {
         // TODO: define the missing class 
     };
-
-
+    
+    
     var RentOffer = function () {
         // TODO: define the missing class 
     };
-
-
+    
+    
     var SaleOffer = function () {
         // TODO: define the missing class 
     };
-
-
+    
+    
     var EstatesEngine = (function () {
         var _estates;
         var _uniqueEstateNames;
         var _offers;
-
+        
         function initialize() {
             _estates = [];
             _uniqueEstateNames = {};
             _offers = [];
         }
-
+        
         function executeCommand(command) {
             var cmdParts = command.split(' ');
             var cmdName = cmdParts[0];
@@ -166,7 +240,7 @@
                     throw new Error('Unknown command: ' + cmdName);
             }
         }
-
+        
         function executeCreateCommand(cmdArgs) {
             var objType = cmdArgs[0];
             switch (objType) {
@@ -205,7 +279,7 @@
             }
             return objType + ' created.';
         }
-
+        
         function parseBoolean(value) {
             switch (value) {
                 case "true":
@@ -216,7 +290,7 @@
                     throw new Error("Invalid boolean value: " + value);
             }
         }
-
+        
         function findEstateByName(estateName) {
             for (var i = 0; i < _estates.length; i++) {
                 if (_estates[i].getName() == estateName) {
@@ -225,7 +299,7 @@
             }
             return undefined;
         }
-
+        
         function addEstate(estate) {
             if (_uniqueEstateNames[estate.getName()]) {
                 throw new Error('Duplicated estate name: ' + estate.getName());
@@ -233,11 +307,11 @@
             _uniqueEstateNames[estate.getName()] = true;
             _estates.push(estate);
         }
-
+        
         function addOffer(offer) {
             _offers.push(offer);
         }
-
+        
         function executeStatusCommand() {
             var result = '', i;
             if (_estates.length > 0) {
@@ -248,7 +322,7 @@
             } else {
                 result += 'No estates\n';
             }
-
+            
             if (_offers.length > 0) {
                 result += 'Offers:\n';
                 for (i = 0; i < _offers.length; i++) {
@@ -257,10 +331,10 @@
             } else {
                 result += 'No offers\n';
             }
-
+            
             return result.trim();
         }
-
+        
         function executeFindSalesByLocationCommand(location) {
             if (!location) {
                 throw new Error("Location cannot be empty.");
@@ -274,7 +348,7 @@
             });
             return formatQueryResults(selectedOffers);
         }
-
+        
         function formatQueryResults(offers) {
             var result = '';
             if (offers.length == 0) {
@@ -290,14 +364,14 @@
             }
             return result.trim();
         }
-
+        
         return {
             initialize: initialize,
             executeCommand: executeCommand
         };
     }());
-
-
+    
+    
     // Process the input commands and return the results
     var results = '';
     EstatesEngine.initialize();
@@ -307,7 +381,7 @@
                 var cmdResult = EstatesEngine.executeCommand(cmd);
                 results += cmdResult + '\n';
             } catch (err) {
-                //console.log(err);
+                console.log(err);
                 results += 'Invalid command.\n';
             }
         }
@@ -329,9 +403,9 @@
             input: process.stdin,
             output: process.stdout
         }).on('line', function (line) {
-            arr.push(line);
-        }).on('close', function () {
-            console.log(processEstatesAgencyCommands(arr));
-        });
+                arr.push(line);
+            }).on('close', function () {
+                console.log(processEstatesAgencyCommands(arr));
+            });
     }
 })();

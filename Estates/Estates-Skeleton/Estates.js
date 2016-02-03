@@ -1,7 +1,7 @@
 ﻿function processEstatesAgencyCommands(commands) {
-    
+
     'use strict';
-    
+
     var Types = {
         Boolean: typeof true,
         Number: typeof 0,
@@ -11,18 +11,18 @@
         Function: typeof function () {
         }
     };
-    
+
     Object.prototype.extend = function (parent) {
         if (!Object.create) {
             Object.prototype.create = function (proto) {
                 function F() {
                 }
-                
+
                 F.prototype = proto;
                 return newF;
             }
         }
-        
+
         this.prototype = Object.create(parent.prototype);
         this.prototype.constructor = this;
     };
@@ -35,10 +35,15 @@
     Object.prototype.isObject = function () {
         return typeof(this) === Types.Object;
     }
-    
+
+    Object.prototype.isNumber = function () {
+        return typeof (this) === Types.Number;
+    }
+
     var Estate = (function () {
         var MIN_AREA = 1;
         var MAX_AREA = 10000;
+
         function Estate(name, area, location, isFurnished) {
             if (this.constructor === Estate) {
                 throw new Error('Estate cannot be instantiated.');
@@ -48,7 +53,7 @@
             this.setLocation(location);
             this.isFurnished(isFurnished);
         }
-        
+
         Estate.prototype.getName = function () {
             return this._name;
         }
@@ -92,11 +97,12 @@
         }
         return Estate;
     }());
-    
-    
+
+
     var BuildingEstate = (function () {
         var MIN_ROOMS = 1;
         var MAX_ROOMS = 100;
+
         function BuildingEstate(name, area, location, isFurnished, numberOfRooms, hasElevator) {
             if (this.constructor === BuildingEstate) {
                 throw new Error('BuildingEstate cannot be instantiated.');
@@ -105,6 +111,7 @@
             this.setNumberOfRooms(numberOfRooms);
             this.setHasElevator(hasElevator);
         }
+
         BuildingEstate.extend(Estate);
         BuildingEstate.prototype.setNumberOfRooms = function (numberOfRooms) {
             if (numberOfRooms < MIN_ROOMS || numberOfRooms > MAX_ROOMS) {
@@ -126,34 +133,37 @@
         }
         return BuildingEstate;
     }());
-    
-    
+
+
     var Apartment = (function () {
         function Apartment(name, area, location, isFurnished, numberOfRooms, hasElevator) {
             BuildingEstate.call(this, name, area, location, isFurnished, numberOfRooms, hasElevator);
         }
+
         Apartment.extend(BuildingEstate);
         return Apartment;
     }());
-    
-    
+
+
     var Office = (function () {
         function Office(name, area, location, isFurnished, numberOfRooms, hasElevator) {
             BuildingEstate.call(this, name, area, location, isFurnished, numberOfRooms, hasElevator);
         }
+
         Office.extend(BuildingEstate);
         return Office;
     }());
-    
-    
+
+
     var House = (function () {
         var MIN_FLOORS = 0;
         var MAX_FLOORS = 10;
+
         function House(name, area, location, isFurnished, floors) {
             Estate.call(this, name, area, location, isFurnished);
             this.setFloors(floors);
         }
-        
+
         House.extend(Estate);
         House.prototype.getFloors = function () {
             return this._floors;
@@ -171,18 +181,20 @@
         }
         return House;
     }());
-    
-    
+
+
     var Garage = (function () {
         var MIN = 1;
         var MAX = 500;
+
         function Garage(name, area, location, isFurnished, width, height) {
             Estate.call(this, name, area, location, isFurnished);
             this.setHeight(height);
             this.setWidth(width);
         }
+
         Garage.extend(Estate);
-        
+
         Garage.prototype.getHeight = function () {
             return this._height;
         }
@@ -209,79 +221,82 @@
         return Garage;
 
     }());
-    
-    
+
+
     var Offer = (function () {
-        function Offer(estate, price){
+        function Offer(estate, price) {
             if (this.constructor === Offer) {
                 throw new Error('Offer cannot be instantiated.');
             }
             this.setPrice(price);
             this.setEstate(estate);
         }
-        Offer.prototype.getPrice= function(){
+
+        Offer.prototype.getPrice = function () {
             return this._price;
         }
-        Offer.prototype.setPrice= function(price){
+        Offer.prototype.setPrice = function (price) {
             if (price <= 0) {
                 throw new Error('The price must positive.');
             }
             this._price = price;
         }
 
-        Offer.prototype.getEstate = function(){
+        Offer.prototype.getEstate = function () {
             return this._estate;
         }
-        Offer.prototype.setEstate = function(estate){
-            if(!estate.isObject()){
+        Offer.prototype.setEstate = function (estate) {
+            if (!estate.isObject()) {
                 throw new Error("Estate must be an Object");
             }
             return this._estate = estate;
         }
-        Offer.prototype.toString= function(){
-            return 'Estate = '+this.getEstate().getName()+
-                    ', Location = '+this.getEstate().getLocation()+
-                    ', Price = '+this.getPrice();
+        Offer.prototype.toString = function () {
+            return 'Estate = ' + this.getEstate().getName() +
+                ', Location = ' + this.getEstate().getLocation() +
+                ', Price = ' + this.getPrice();
         }
         return Offer;
     }());
-    
-    
+
+
     var RentOffer = (function () {
-        function RentOffer(estate, price){
+        function RentOffer(estate, price) {
             Offer.call(this, estate, price);
         }
+
         RentOffer.extend(Offer);
-        RentOffer.prototype.toString = function(){
-            return 'Rent: '+ Offer.prototype.toString.call(this);
+        RentOffer.prototype.toString = function () {
+            return 'Rent: ' + Offer.prototype.toString.call(this);
         }
         return RentOffer;
     }());
-    
-    
+
+
     var SaleOffer = (function () {
-        function SaleOffer(estate, price){
+        function SaleOffer(estate, price) {
             Offer.call(this, estate, price);
         }
+
         SaleOffer.extend(Offer);
-        SaleOffer.prototype.toString = function(){
-            return 'Sale: '+ Offer.prototype.toString.call(this);
+        SaleOffer.prototype.toString = function () {
+            return 'Sale: ' + Offer.prototype.toString.call(this);
         }
         return RentOffer;
     }());
-    
-    
+
+
     var EstatesEngine = (function () {
         var _estates;
         var _uniqueEstateNames;
         var _offers;
-        
+
         function initialize() {
             _estates = [];
             _uniqueEstateNames = {};
             _offers = [];
         }
-        
+
         function executeCommand(command) {
             var cmdParts = command.split(' ');
             var cmdName = cmdParts[0];
@@ -293,11 +308,15 @@
                     return executeStatusCommand();
                 case 'find-sales-by-location':
                     return executeFindSalesByLocationCommand(cmdArgs[0]);
+                case 'find-rents-by-location':
+                    return executeFindRentsByLocationCommand(cmdArgs[0]);
+                case 'find-rents-by-price':
+                    return executeFindRentsByPriceCommand(Number(cmdArgs[0]), Number(cmdArgs[1]));
                 default:
                     throw new Error('Unknown command: ' + cmdName);
             }
         }
-        
+
         function executeCreateCommand(cmdArgs) {
             var objType = cmdArgs[0];
             switch (objType) {
@@ -336,7 +355,7 @@
             }
             return objType + ' created.';
         }
-        
+
         function parseBoolean(value) {
             switch (value) {
                 case "true":
@@ -347,7 +366,7 @@
                     throw new Error("Invalid boolean value: " + value);
             }
         }
-        
+
         function findEstateByName(estateName) {
             for (var i = 0; i < _estates.length; i++) {
                 if (_estates[i].getName() == estateName) {
@@ -356,7 +375,7 @@
             }
             return undefined;
         }
-        
+
         function addEstate(estate) {
             if (_uniqueEstateNames[estate.getName()]) {
                 throw new Error('Duplicated estate name: ' + estate.getName());
@@ -364,11 +383,11 @@
             _uniqueEstateNames[estate.getName()] = true;
             _estates.push(estate);
         }
-        
+
         function addOffer(offer) {
             _offers.push(offer);
         }
-        
+
         function executeStatusCommand() {
             var result = '', i;
             if (_estates.length > 0) {
@@ -379,7 +398,7 @@
             } else {
                 result += 'No estates\n';
             }
-            
+
             if (_offers.length > 0) {
                 result += 'Offers:\n';
                 for (i = 0; i < _offers.length; i++) {
@@ -388,24 +407,54 @@
             } else {
                 result += 'No offers\n';
             }
-            
+
             return result.trim();
         }
-        
-        function executeFindSalesByLocationCommand(location) {
+
+        function executeFindOfferByLocationCommand(location, offerType) {
             if (!location) {
                 throw new Error("Location cannot be empty.");
             }
             var selectedOffers = _offers.filter(function (offer) {
                 return offer.getEstate().getLocation() === location &&
-                    offer instanceof SaleOffer;
+                    offer instanceof offerType;
             });
             selectedOffers.sort(function (a, b) {
                 return a.getEstate().getName().localeCompare(b.getEstate().getName());
             });
             return formatQueryResults(selectedOffers);
         }
-        
+
+        function executeFindSalesByLocationCommand(location) {
+            return executeFindOfferByLocationCommand(location, SaleOffer);
+        }
+
+        function executeFindRentsByLocationCommand(location) {
+            return executeFindOfferByLocationCommand(location, RentOffer);
+        }
+
+
+        function executeFindRentsByPriceCommand(minPrice, maxPrice) {
+            if (!minPrice.isNumber() || !maxPrice.isNumber()) {
+                throw new Error("MinPrice and maxPrice must be integers.");
+            }
+            function isInPriceRange(offer) {
+                return offer.getPrice() >= minPrice &&
+                    offer.getPrice() <= maxPrice &&
+                    offer instanceof RentOffer;
+            }
+
+            var selectedOffers = _offers.filter(isInPriceRange);
+
+            selectedOffers.sort(function (a, b) {
+                return a.getPrice() > b.getPrice();
+            });
+            selectedOffers.sort(function (a, b) {
+                return a.getEstate().getName().localeCompare(b.getEstate().getName());
+            });
+            return formatQueryResults(selectedOffers);
+        }
+
         function formatQueryResults(offers) {
             var result = '';
             if (offers.length == 0) {
@@ -421,14 +470,14 @@
             }
             return result.trim();
         }
-        
+
         return {
             initialize: initialize,
             executeCommand: executeCommand
         };
     }());
-    
-    
+
+
     // Process the input commands and return the results
     var results = '';
     EstatesEngine.initialize();
@@ -460,9 +509,9 @@
             input: process.stdin,
             output: process.stdout
         }).on('line', function (line) {
-                arr.push(line);
-            }).on('close', function () {
-                console.log(processEstatesAgencyCommands(arr));
-            });
+            arr.push(line);
+        }).on('close', function () {
+            console.log(processEstatesAgencyCommands(arr));
+        });
     }
 })();

@@ -32,6 +32,9 @@
     Object.prototype.isBoolean = function () {
         return typeof (this) === Types.Boolean;
     }
+    Object.prototype.isObject = function () {
+        return typeof(this) === Types.Object;
+    }
     
     var Estate = (function () {
         var MIN_AREA = 1;
@@ -208,19 +211,64 @@
     }());
     
     
-    var Offer = function () {
-        // TODO: define the missing class 
-    };
+    var Offer = (function () {
+        function Offer(estate, price){
+            if (this.constructor === Offer) {
+                throw new Error('Offer cannot be instantiated.');
+            }
+            this.setPrice(price);
+            this.setEstate(estate);
+        }
+        Offer.prototype.getPrice= function(){
+            return this._price;
+        }
+        Offer.prototype.setPrice= function(price){
+            if (price <= 0) {
+                throw new Error('The price must positive.');
+            }
+            this._price = price;
+        }
+
+        Offer.prototype.getEstate = function(){
+            return this._estate;
+        }
+        Offer.prototype.setEstate = function(estate){
+            if(!estate.isObject()){
+                throw new Error("Estate must be an Object");
+            }
+            return this._estate = estate;
+        }
+        Offer.prototype.toString= function(){
+            return 'Estate = '+this.getEstate().getName()+
+                    ', Location = '+this.getEstate().getLocation()+
+                    ', Price = '+this.getPrice();
+        }
+        return Offer;
+    }());
     
     
-    var RentOffer = function () {
-        // TODO: define the missing class 
-    };
+    var RentOffer = (function () {
+        function RentOffer(estate, price){
+            Offer.call(this, estate, price);
+        }
+        RentOffer.extend(Offer);
+        RentOffer.prototype.toString = function(){
+            return 'Rent: '+ Offer.prototype.toString.call(this);
+        }
+        return RentOffer;
+    }());
     
     
-    var SaleOffer = function () {
-        // TODO: define the missing class 
-    };
+    var SaleOffer = (function () {
+        function SaleOffer(estate, price){
+            Offer.call(this, estate, price);
+        }
+        SaleOffer.extend(Offer);
+        SaleOffer.prototype.toString = function(){
+            return 'Sale: '+ Offer.prototype.toString.call(this);
+        }
+        return RentOffer;
+    }());
     
     
     var EstatesEngine = (function () {

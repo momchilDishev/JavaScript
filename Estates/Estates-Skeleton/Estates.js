@@ -28,17 +28,17 @@
     };
     Object.prototype.isString = function () {
         return typeof (this) === Types.String;
-    }
+    };
     Object.prototype.isBoolean = function () {
         return typeof (this) === Types.Boolean;
-    }
+    };
     Object.prototype.isObject = function () {
         return typeof(this) === Types.Object;
-    }
+    };
 
     Object.prototype.isNumber = function () {
         return typeof (this) === Types.Number;
-    }
+    };
 
     var Estate = (function () {
         var MIN_AREA = 1;
@@ -77,7 +77,7 @@
         }
         Estate.prototype.setLocation = function (location) {
             if (!location || !location.isString()) {
-                throw new Error('Locaiton cannot be null or empty')
+                throw new Error('Location cannot be null or empty')
             }
             this._location = location;
         }
@@ -131,6 +131,11 @@
         BuildingEstate.prototype.getHasElevator = function () {
             return this._hasElevator;
         }
+        BuildingEstate.prototype.toString = function () {
+            return Estate.prototype.toString.call(this) +
+                ', Rooms: ' + this.getNumberOfRooms() +
+                ', Elevator: ' + (this.getHasElevator() ? 'Yes' : 'No');
+        }
         return BuildingEstate;
     }());
 
@@ -141,6 +146,9 @@
         }
 
         Apartment.extend(BuildingEstate);
+        Apartment.prototype.toString = function () {
+            return BuildingEstate.prototype.toString.call(this);
+        }
         return Apartment;
     }());
 
@@ -151,6 +159,9 @@
         }
 
         Office.extend(BuildingEstate);
+        Office.prototype.toString = function () {
+            return BuildingEstate.prototype.toString.call(this);
+        }
         return Office;
     }());
 
@@ -487,7 +498,7 @@
                 var cmdResult = EstatesEngine.executeCommand(cmd);
                 results += cmdResult + '\n';
             } catch (err) {
-                console.log(err);
+                //console.log(err);
                 results += 'Invalid command.\n';
             }
         }

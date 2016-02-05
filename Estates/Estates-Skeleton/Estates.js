@@ -29,16 +29,10 @@
     Object.prototype.isString = function () {
         return typeof (this) === Types.String;
     };
-    Object.prototype.isBoolean = function () {
-        return typeof (this) === Types.Boolean;
-    };
-    Object.prototype.isObject = function () {
-        return typeof(this) === Types.Object;
-    };
 
-    Object.prototype.isNumber = function () {
-        return typeof (this) === Types.Number;
-    };
+    function isInteger(x) {
+        return ((x ^ 0) === x);
+    }
 
     var Estate = (function () {
         var MIN_AREA = 1;
@@ -58,7 +52,7 @@
             return this._name;
         }
         Estate.prototype.setName = function (name) {
-            if (!name || !name.isString()) {
+            if (name == '' || !name.isString()) {
                 throw new Error('Name cannot be null or empty')
             }
             this._name = name;
@@ -67,8 +61,11 @@
             return this._area;
         }
         Estate.prototype.setArea = function (area) {
+            if (!isInteger(area)) {
+                throw new Error('Area should be an integer number.');
+            }
             if (area < MIN_AREA || area > MAX_AREA) {
-                throw new Error('Area should be an integer in range [1…10000]');
+                throw new Error('Area should be in range [' + MIN_AREA + '…' + MAX_AREA + ']');
             }
             this._area = area;
         }
@@ -76,13 +73,13 @@
             return this._location;
         }
         Estate.prototype.setLocation = function (location) {
-            if (!location || !location.isString()) {
+            if (location == '' || !location.isString()) {
                 throw new Error('Location cannot be null or empty')
             }
             this._location = location;
         }
         Estate.prototype.isFurnished = function (isFurnished) {
-            if (!isFurnished.isBoolean()) {
+            if (typeof(isFurnished) != 'boolean') {
                 throw new Error('Parameter should be boolean.')
             }
             this._isFurnished = isFurnished;
@@ -100,7 +97,7 @@
 
 
     var BuildingEstate = (function () {
-        var MIN_ROOMS = 1;
+        var MIN_ROOMS = 0;
         var MAX_ROOMS = 100;
 
         function BuildingEstate(name, area, location, isFurnished, numberOfRooms, hasElevator) {
@@ -123,7 +120,7 @@
             return this._numberOfRooms;
         }
         BuildingEstate.prototype.setHasElevator = function (hasElevator) {
-            if (!hasElevator.isBoolean()) {
+            if (typeof(hasElevator) !='boolean') {
                 throw new Error('Parameter should be boolean.')
             }
             this._hasElevator = hasElevator;
@@ -180,14 +177,17 @@
             return this._floors;
         }
         House.prototype.setFloors = function (floors) {
+            if (!isInteger(floors)) {
+                throw new Error('Rooms should be an integer number.');
+            }
             if (floors <= MIN_FLOORS || floors > MAX_FLOORS) {
                 throw new Error('Number of rooms should be integer between 1 and 10.')
             }
             this._floors = floors;
         }
         House.prototype.toString = function () {
-            var result = Estate.prototype.toString().call(this);
-            result += ', Floors = ' + this.getFloors();
+            var result = Estate.prototype.toString.call(this);
+            result += ', Floors: ' + this.getFloors();
             return result;
         }
         return House;
@@ -210,6 +210,9 @@
             return this._height;
         }
         Garage.prototype.setHeight = function (height) {
+            if (!isInteger(height)) {
+                throw new Error('Height should be an integer number.');
+            }
             if (height < MIN || height > MAX) {
                 throw new Error('Height should be between 1 and 500.');
             }
@@ -219,13 +222,16 @@
             return this._width;
         }
         Garage.prototype.setWidth = function (width) {
+            if (!isInteger(width)) {
+                throw new Error('Width should be an integer number.');
+            }
             if (width < MIN || width > MAX) {
                 throw new Error('Height should be between 1 and 500.');
             }
             this._width = width;
         }
         Garage.prototype.toString = function () {
-            var result = Estate.prototype.toString().call(this);
+            var result = Estate.prototype.toString.call(this);
             result += ', Width: ' + this.getWidth() + ', Height: ' + this.getHeight();
             return result;
         }
@@ -247,8 +253,11 @@
             return this._price;
         }
         Offer.prototype.setPrice = function (price) {
-            if (price <= 0) {
-                throw new Error('The price must positive.');
+            if (!isInteger(price)) {
+                throw new Error('The price must be integer.');
+            }
+            if (price < 0) {
+                throw new Error('The price must integer.');
             }
             this._price = price;
         }
@@ -257,7 +266,7 @@
             return this._estate;
         }
         Offer.prototype.setEstate = function (estate) {
-            if (!estate.isObject()) {
+            if (!(estate instanceof Estate)) {
                 throw new Error("Estate must be an Object");
             }
             return this._estate = estate;
@@ -293,7 +302,7 @@
         SaleOffer.prototype.toString = function () {
             return 'Sale: ' + Offer.prototype.toString.call(this);
         }
-        return RentOffer;
+        return SaleOffer;
     }());
 
 
@@ -446,8 +455,9 @@
 
 
         function executeFindRentsByPriceCommand(minPrice, maxPrice) {
-            if (!minPrice.isNumber() || !maxPrice.isNumber()) {
-                throw new Error("MinPrice and maxPrice must be integers.");
+
+            if (!isInteger(maxPrice) || !isInteger(minPrice)) {
+                throw new Error('Area should be an integer number.');
             }
             function isInPriceRange(offer) {
                 return offer.getPrice() >= minPrice &&
@@ -458,11 +468,17 @@
             var selectedOffers = _offers.filter(isInPriceRange);
 
             selectedOffers.sort(function (a, b) {
-                return a.getPrice() > b.getPrice();
-            });
-            selectedOffers.sort(function (a, b) {
                 return a.getEstate().getName().localeCompare(b.getEstate().getName());
             });
+
+            selectedOffers.sort(function (a, b) {
+                var result = a.getPrice() - b.getPrice();
+                if (result == 0) {
+                    result = a.getEstate().getName().localeCompare(b.getEstate().getName());
+                }
+                return result;
+            });
+
             return formatQueryResults(selectedOffers);
         }
 
@@ -487,7 +503,7 @@
             executeCommand: executeCommand
         };
     }());
-
+    var apt = new Apartment("momo", 2, "valid", false, 5, true)
 
     // Process the input commands and return the results
     var results = '';

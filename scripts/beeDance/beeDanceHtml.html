@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="beeStyles.css">
+</head>
+<div id="hive" class="hive">
+    <img src="hive.png" alt="a hive"/>
+</div>
+
+<div id="bee" class="bee">
+    <img src="bee.png" alt="a bee"/>
+</div>
+<input type="button" onclick="fly()" value="Click to fly"/>
+
+<div id="flower" class="flower">
+    <img src="flower.png" alt="a flower"/>
+</div>
+
+<script src="../jquery-11.1-min.js"></script>
+<script src="../jQuery.Keyframes-master/jQuery.Keyframes-master/jquery.keyframes.js"></script>
+<script>
+    function fly() {
+        var supportedFlag = $.keyframe.isSupported();
+        $.keyframe.debug = true;
+        // Get the css browser code (ie: -moz-)
+        var pfx = $.keyframe.getVendorPrefix();
+
+        //Note the variable notation to be able to add vendor specific prefix
+        var transform = pfx + 'transform';
+
+        $.keyframe.define([{
+            name: 'bee flight',
+            '0%': {
+                'transform': 'translate(0, 0)'
+            },
+            '5%': {
+                'transform': 'rotate(90deg)'
+            },
+            '50%': {
+                'transform': 'translate(1100px, 0)'
+            },
+            '95 %': {
+                'transform': 'rotate(270deg)'
+            },
+            '100 %': {'transform': 'translate(0,0)'}
+
+        }]);
+
+        $('.bee').playKeyframe({
+            name: 'bee flight',
+            duration: '6s',
+            timingFunction: 'linear',
+            delay: '2s',
+            iterationCount: '1',
+            direction: 'normal',
+            fillMode: 'forwards',
+            complete: function () {
+            }
+
+        });
+
+
+    }
+</script>-->
+</body>
+</html>

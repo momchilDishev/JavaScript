@@ -10,12 +10,11 @@
 
 }
 
-#bee {
-    -webkit-animation: bee-flight 7s infinite;
-    -o-animation: bee-flight 7s infinite;
-    animation: bee-flight 7s infinite;
+#bee:active{
+    -webkit-animation: bee-flight 6s infinite;
+    -o-animation: bee-flight 6s infinite;
+    animation: bee-flight 6s infinite;
     animation-direction: alternate;
-    animation-iteration-count: 1;
 
 }
 

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="beeStyles.css">
+</head>
+<div id="hive" class="hive">
+    <img src="hive.png" alt="a hive"/>
+</div>
+
+<div id="bee" class="bee">
+    <img src="bee.png" alt="a bee"/>
+</div>
+<input type="button" id="button" value="Click to fly"/>
+
+<div id="flower" class="flower">
+    <img src="flower.png" alt="a flower"/>
+</div>
+
+<script src="jquery-11.1-min.js"></script>
+<script src="jQuery.Keyframes-master/jQuery.Keyframes-master/jquery.keyframes.js"></script>
+<script>
+$("#button").click(function(
+){
+   $("#bee").animate({
+       left:"+=1000",
+       rotation: "90deg"
+   }, 5000, function() {
+       // Animation complete.
+   });
+});
+</script>
+
+</body>
+</html>

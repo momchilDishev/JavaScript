@@ -1,7 +1,10 @@
-JavaScript-Homeworks
+JavaScript
 ====================
 
-JavaScript-Homeworks from SoftUni BG
+- Homeworks from SoftUni
 
-hello!
-testing!
+- Exams from SoftUni
+
+- ECMAScript6
+
+

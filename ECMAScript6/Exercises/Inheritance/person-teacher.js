@@ -28,4 +28,4 @@ class Teacher extends Person{
 
 }
 let t = new Teacher("Ogo", "sama", "niki");
-console.log(`Teacher: ${t.name} ${t.email} is teachnig ${t.subject}`);
+console.log(`Teacher: ${t.name} ${t.email} teaches ${t.subject}`);
